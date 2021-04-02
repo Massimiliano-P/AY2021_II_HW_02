@@ -17,6 +17,7 @@ static char packetColor[SIZE_COLOR] = {'\0'};
 static char packetTimeout;
 
 volatile char flag, count_time, byte_received, timeoutMax;
+char message;
 
 int index_parser;
 int STATE;
@@ -57,18 +58,29 @@ int main(void)
                 {
                     case HEADER_COLOR:
                         STATE = COLOR_SET;
-                        Timer_WriteCounter(Timer_ReadPeriod());
+                        Timer_WriteCounter(RESET_TIMER);
                         count_time = 0;
                         break;
                     case HEADER_TIMOUT:
                         STATE = TIMEOUT_SET;
-                        Timer_WriteCounter(Timer_ReadPeriod());
+                        Timer_WriteCounter(RESET_TIMER);
                         count_time = 0;
                         break;
                     
                     case 'v':
                         UART_PutString("RGB LED Program $$$");
                         break;
+                    
+                    case 'c':
+                        message = timeoutMax;
+                        UART_PutString(&message);
+                        break;
+                        
+                    case 'd':
+                        message = packetColor[0];
+                        UART_PutString(&message);
+                        break;
+                       
                     
                     default:
                     UART_PutString("Header unaccepted");
@@ -87,7 +99,7 @@ int main(void)
             if(flag == 1)
             {
                 flag = 0;
-                Timer_WriteCounter(Timer_ReadPeriod());
+                Timer_WriteCounter(RESET_TIMER);
                 count_time = 0;
                 byte_received = UART_ReadRxData();
                 packetColor[index_parser] = byte_received;
@@ -104,14 +116,14 @@ int main(void)
         
         if(STATE == TIMEOUT_SET)
         {
-            if(count_time > timeoutMax){
+            if(count_time > INFINITE){
                 STATE = RESET;
                 UART_PutString("Timeout");
             }
             if(flag == 1)
             {
                 flag = 0;
-                Timer_WriteCounter(Timer_ReadPeriod());
+                Timer_WriteCounter(RESET_TIMER);
                 count_time = 0;
                 packetTimeout = UART_ReadRxData();
                 if(packetTimeout <= 20 && packetTimeout >= 1)
@@ -134,7 +146,7 @@ int main(void)
             if(flag == 1)
             {
                 flag = 0;
-               // Timer_WriteCounter(Timer_ReadPeriod());
+               // Timer_WriteCounter(RESET_TIMER);
                // count_time = 0;
                 byte_received = UART_ReadRxData();
                 if(byte_received == 192)

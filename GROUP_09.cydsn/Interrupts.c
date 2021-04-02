@@ -15,7 +15,7 @@
 #include "UART.h"
 
 extern volatile char flag;
-extern volatile int counter_time;
+extern volatile char count_time;
 
 CY_ISR(UART_ISR){
      if(UART_ReadRxStatus() == UART_RX_STS_FIFO_NOTEMPTY)
@@ -26,7 +26,7 @@ CY_ISR(UART_ISR){
 
 CY_ISR(TIMER_ISR){
     
-    counter_time++;
+    count_time++;
 
 }
 

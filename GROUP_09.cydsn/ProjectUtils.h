@@ -17,7 +17,8 @@
 #define HEADER_TIMOUT 161
 
 #define SIZE_COLOR 3
-
+#define INFINITE 30
+#define RESET_TIMER 0
 
 
 
