@@ -71,7 +71,7 @@ int main(void)
                         break;
                     
                     default:
-                    UART_PutString("Byte unaccepted");
+                    UART_PutString("Header unaccepted");
                 
                 }
             }    
@@ -127,9 +127,26 @@ int main(void)
         
         if(STATE == TAIL)
         {
-            //Here we drive components
-            //EXIT condition
-            
+            if(count_time > timeoutMax){
+                STATE = RESET;
+                UART_PutString("Timeout");
+            }
+            if(flag == 1)
+            {
+                flag = 0;
+               // Timer_WriteCounter(Timer_ReadPeriod());
+               // count_time = 0;
+                byte_received = UART_ReadRxData();
+                if(byte_received == 192)
+                {
+                    timeoutMax = packetTimeout;
+                    //driving PWM: fill the color struct and lighting leds
+                }
+                else {
+                    UART_PutString("Tail unaccepted");
+                }
+                STATE = RESET;
+            }
         }
         
         
