@@ -13,11 +13,11 @@
 #include "Interrupts.h"
 #include "ProjectUtils.h"
 
-char packetColor[SIZE_COLOR] = {'\0'};
-int packetTimeout;
+static char packetColor[SIZE_COLOR] = {'\0'};
+static char packetTimeout;
 
-volatile char flag, count_time, byte_received;
-volatile int timeoutMax;
+volatile char flag, count_time, byte_received, timeoutMax;
+
 int index_parser;
 int STATE;
 
