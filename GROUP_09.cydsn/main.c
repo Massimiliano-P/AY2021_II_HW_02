@@ -43,7 +43,8 @@ int main(void)
     {
         if(STATE == RESET)
         {
-            index_parser = 0;      
+            index_parser = 0; 
+            STATE = IDLE;
         }
         /* Place your application code here. */
         if(STATE == IDLE)
@@ -79,7 +80,10 @@ int main(void)
         
         if(STATE == COLOR_SET)
         {
-            if(count_time > timeoutMax){STATE = RESET;}
+            if(count_time > timeoutMax){
+                STATE = RESET;
+                UART_PutString("Timeout");
+            }            
             if(flag == 1)
             {
                 flag = 0;
@@ -100,9 +104,25 @@ int main(void)
         
         if(STATE == TIMEOUT_SET)
         {
-            // Read timer byte
-            // EXIT Condition
-            
+            if(count_time > timeoutMax){
+                STATE = RESET;
+                UART_PutString("Timeout");
+            }
+            if(flag == 1)
+            {
+                flag = 0;
+                Timer_WriteCounter(Timer_ReadPeriod());
+                count_time = 0;
+                packetTimeout = UART_ReadRxData();
+                if(packetTimeout <= 20 && packetTimeout >= 1)
+                {
+                    STATE = TAIL;
+                }
+                else {
+                    STATE = RESET;
+                    UART_PutString("Timeout out of range");
+                }
+            }
         }
         
         if(STATE == TAIL)
