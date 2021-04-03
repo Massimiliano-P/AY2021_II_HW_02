@@ -21,6 +21,7 @@ char message;
 
 int index_parser;
 int STATE;
+char source;
 
 
 int main(void)
@@ -70,17 +71,17 @@ int main(void)
                     case 'v':
                         UART_PutString("RGB LED Program $$$");
                         break;
-                    
+                    /*
                     case 'c':
                         message = timeoutMax;
-                        UART_PutString(&message);
+                        UART_PutString(&timeoutMax);
                         break;
                         
                     case 'd':
                         message = packetColor[0];
-                        UART_PutString(&message);
+                        UART_PutString(packetColor);
                         break;
-                       
+                       */
                     
                     default:
                     UART_PutString("Header unaccepted");
@@ -106,6 +107,7 @@ int main(void)
                 index_parser++;
                 if(index_parser == SIZE_COLOR)
                 {
+                    source = FROM_COLOR;
                     STATE = TAIL;
                 }
                 
@@ -128,6 +130,7 @@ int main(void)
                 packetTimeout = UART_ReadRxData();
                 if(packetTimeout <= 20 && packetTimeout >= 1)
                 {
+                    source = FROM_TIMEOUT;
                     STATE = TAIL;
                 }
                 else {
@@ -139,7 +142,7 @@ int main(void)
         
         if(STATE == TAIL)
         {
-            if(count_time > timeoutMax){
+            if((count_time > timeoutMax && source == FROM_COLOR) ||(count_time > INFINITE && source == FROM_TIMEOUT)){
                 STATE = RESET;
                 UART_PutString("Timeout");
             }
@@ -151,8 +154,14 @@ int main(void)
                 byte_received = UART_ReadRxData();
                 if(byte_received == 192)
                 {
-                    timeoutMax = packetTimeout;
-                    //driving PWM: fill the color struct and lighting leds
+                    switch(source){
+                        case FROM_COLOR:
+                        //driving PWM: fill the color struct and lighting leds
+                        break;
+                        case FROM_TIMEOUT:
+                        timeoutMax = packetTimeout;
+                        break;
+                    }
                 }
                 else {
                     UART_PutString("Tail unaccepted");

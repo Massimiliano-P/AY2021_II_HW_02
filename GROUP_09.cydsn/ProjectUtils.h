@@ -20,6 +20,9 @@
 #define INFINITE 30
 #define RESET_TIMER 0
 
+#define FROM_COLOR 1
+#define FROM_TIMEOUT 2
+
 
 
 /* [] END OF FILE */
