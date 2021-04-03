@@ -12,6 +12,7 @@
 #include "project.h"
 #include "Interrupts.h"
 #include "ProjectUtils.h"
+#include "LEDdriver.h"
 
 static char packetColor[SIZE_COLOR] = {'\0'};
 static char packetTimeout;
@@ -22,13 +23,14 @@ char message;
 int index_parser;
 int STATE;
 char source;
+Color color;
 
 
 int main(void)
 {
+    //Add from Utils done
     ActivateISR();
     InitializeComponents();
-    //Initialize PWM
     
     CyGlobalIntEnable; /* Enable global interrupts. */
 
@@ -155,6 +157,8 @@ int main(void)
                     switch(source){
                         case FROM_COLOR:
                         //driving PWM: fill the color struct and lighting leds
+                        color = LED_GetColor(packetColor);
+                        LED_WriteColor(color);
                         break;
                         case FROM_TIMEOUT:
                         timeoutMax = packetTimeout;

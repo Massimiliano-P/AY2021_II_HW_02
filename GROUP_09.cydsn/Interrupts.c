@@ -21,7 +21,6 @@ CY_ISR(UART_ISR){
      if(UART_ReadRxStatus() == UART_RX_STS_FIFO_NOTEMPTY)
     {
         flag = 1;
-        UART_PutString("Ciao");
     }
 }
 

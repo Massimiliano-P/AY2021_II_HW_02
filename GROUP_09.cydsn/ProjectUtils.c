@@ -17,7 +17,7 @@
 
 void InitializeComponents()
 {
-    //Initialize PWM: LED_Start();
+    LED_Start();
     Timer_Start();
     UART_Start();
 }
