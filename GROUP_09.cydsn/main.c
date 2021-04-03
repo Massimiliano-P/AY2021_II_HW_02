@@ -26,10 +26,8 @@ char source;
 
 int main(void)
 {
-    Timer_Start();
-    UART_Start();
-    ISR_UART_StartEx(UART_ISR);
-    ISR_TIMER_StartEx(TIMER_ISR);
+    ActivateISR();
+    InitializeComponents();
     //Initialize PWM
     
     CyGlobalIntEnable; /* Enable global interrupts. */

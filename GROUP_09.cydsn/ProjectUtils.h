@@ -24,5 +24,11 @@
 #define FROM_TIMEOUT 2
 
 
+void InitializeComponents(void);
+
+void ActivateISR(void);
+
+
+
 
 /* [] END OF FILE */

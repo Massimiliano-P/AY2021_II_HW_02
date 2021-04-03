@@ -10,25 +10,22 @@
  * ========================================
 */
 
-#include "project.h"
+#include "ProjectUtils.h"
 #include "Interrupts.h"
-#include "UART.h"
+#include "project.h"
+#include "LEDdriver.h" 
 
-extern volatile char flag;
-extern volatile char count_time;
-
-CY_ISR(UART_ISR){
-     if(UART_ReadRxStatus() == UART_RX_STS_FIFO_NOTEMPTY)
-    {
-        flag = 1;
-        UART_PutString("Ciao");
-    }
+void InitializeComponents()
+{
+    //Initialize PWM: LED_Start();
+    Timer_Start();
+    UART_Start();
 }
 
-CY_ISR(TIMER_ISR){
-    
-    count_time++;
-
+void ActivateISR()
+{
+    ISR_UART_StartEx(UART_ISR);
+    ISR_TIMER_StartEx(TIMER_ISR);
 }
 
 /* [] END OF FILE */
