@@ -1,12 +1,7 @@
 /* ========================================
- *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
+ *          /file Interrupts.h
+  *
+ * In this file the interrupts routines are declared
  * ========================================
 */
 #ifndef __INTERRUPTS_H

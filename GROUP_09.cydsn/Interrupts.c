@@ -1,12 +1,7 @@
 /* ========================================
+ *          /file Interrupts.c
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
+ * In this file the interrupts routines are defined
  * ========================================
 */
 
@@ -17,6 +12,8 @@
 extern volatile char flag;
 extern volatile char count_time;
 
+//This routine is called whenever a byte is received by the UART
+//and it simply rises a global flag
 CY_ISR(UART_ISR){
      if(UART_ReadRxStatus() == UART_RX_STS_FIFO_NOTEMPTY)
     {
@@ -24,6 +21,8 @@ CY_ISR(UART_ISR){
     }
 }
 
+//This routine is called whenever the timer counter goes in overflow (1 Hz)
+//and it is used to measure time in seconds
 CY_ISR(TIMER_ISR){
     
     count_time++;

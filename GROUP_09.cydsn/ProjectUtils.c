@@ -1,12 +1,7 @@
 /* ========================================
+ *      /file ProjectUtils.c
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
+ * In this file the functions declared in ProjectUtils.h are defined
  * ========================================
 */
 

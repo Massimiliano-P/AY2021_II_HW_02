@@ -11,6 +11,9 @@
 #include "ProjectUtils.h"
 #include "LEDdriver.h"
 
+#define RESET_TIMER 0
+#define SIZE_COLOR 3
+
 // Service variable to store received bytes
 static char packetColor[SIZE_COLOR] = {'\0'};
 static char packetTimeout;
@@ -39,7 +42,7 @@ int main(void)
     // Initialize flag to keep track of bytes received
     flag = 0;
     // Initialize timeoutMax to the default 5 seconds (as indicated in specs) 
-    timeoutMax = 5;
+    timeoutMax = DEFAULT_TIMEOUT;
     // Initialize the integer variable to scroll the vector that keeps track of bytes
     // related to colors (RGB)
     index_parser = 0;
@@ -154,7 +157,7 @@ int main(void)
                 Timer_WriteCounter(RESET_TIMER);
                 count_time = 0;
                 packetTimeout = UART_ReadRxData();
-                if(packetTimeout <= 20 && packetTimeout >= 1)
+                if(packetTimeout <= MAX_TIMEOUT && packetTimeout >= MIN_TIMEOUT)
                 {
                     source = FROM_TIMEOUT;  // reference for the type of TAIL state we enter
                     STATE = TAIL;
@@ -178,7 +181,7 @@ int main(void)
             {
                 flag = 0;
                 byte_received = UART_ReadRxData();
-                if(byte_received == 192) // check if TAIL is acceptable (as per protocol)
+                if(byte_received == TAIL_BYTE) // check if TAIL is acceptable (as per protocol)
                 {
                     switch(source){
                         case FROM_COLOR:    // meaning we are setting the color -> drive RGB_LED
