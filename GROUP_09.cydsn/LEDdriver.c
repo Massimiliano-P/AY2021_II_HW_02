@@ -1,5 +1,7 @@
 /* ========================================
  *      /file LEDdriver.c
+ *
+ *  This file defines the driver functions
  * ========================================
 */
 #include "LEDdriver.h"
@@ -9,10 +11,6 @@ void LED_Start()
 {
     PWM_RG_Start();
     PWM_B_Start();
-    /*PWM_RG_WriteCompare1(0);
-    PWM_RG_WriteCompare2(0);
-    PWM_B_WriteCompare(0);
-    */
 }
 
 void LED_WriteColor(Color c)
