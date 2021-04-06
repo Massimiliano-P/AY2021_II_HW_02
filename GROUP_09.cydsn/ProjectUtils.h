@@ -14,7 +14,7 @@
 // Define prossible values for the packet header variable
 
 #define HEADER_COLOR 160
-#define HEADER_TIMOUT 161
+#define HEADER_TIMEOUT 161
 
 #define SIZE_COLOR 3
 #define INFINITE 30
