@@ -1,7 +1,9 @@
 /* ========================================
  *          /file main.c
  *  
- *   In this file 
+ *   This file implements the STATE_MACHINE which controls the whole flow of bytes 
+ *   characterizing packets of communication protocols. Concurrently this code drives LEDs using 
+ *   provided information by calling external functions imported by means of header files
  * ========================================
 */
 #include "project.h"
@@ -9,11 +11,11 @@
 #include "ProjectUtils.h"
 #include "LEDdriver.h"
 
+// Service variable to store received bytes
 static char packetColor[SIZE_COLOR] = {'\0'};
 static char packetTimeout;
 
 volatile char flag, count_time, byte_received, timeoutMax;
-char message;
 
 int index_parser;
 int STATE;
@@ -87,12 +89,11 @@ int main(void)
                         break;
                     /*
                     case 'c':
-                        message = timeoutMax;
                         UART_PutString(&timeoutMax);
                         break;
                         
                     case 'd':
-                        message = packetColor[0];
+                        
                         UART_PutString(packetColor);
                         break;
                        */
@@ -100,7 +101,7 @@ int main(void)
                     default:
                         /* if the first byte we receive is not one of the "HEADER" 
                         involved in protocols, we must tell the user his input was wrong*/
-                    UART_PutString("Header unaccepted");
+                    UART_PutString("Header not acceptable");
                 
                 }
             }    
@@ -127,7 +128,7 @@ int main(void)
                 if(index_parser == SIZE_COLOR) // if the vector is full, 
                                                //it means that all bytes were received correctly
                 {
-                    source = FROM_COLOR;
+                    source = FROM_COLOR;    // reference for the type of TAIL state we enter
                     STATE = TAIL;
                 }
                 
@@ -138,9 +139,14 @@ int main(void)
         
         if(STATE == TIMEOUT_SET)
         {
-            if(count_time > INFINITE){
+            /* once we are in this state, we should epect a byte reporting the new timeout time. 
+            To complete the sending of this packet we let the user a fixed amount of time
+            equal to 30 seconds (INFINITE), allowing the user to have time to type all bytes properly*/
+            if(count_time > INFINITE)  // exceeding 30 seconds, the communication protocol crashes
+                                       // going back to IDLE state
+            {
                 STATE = RESET;
-                UART_PutString("Timeout");
+                UART_PutString("Timeout, re-send the entire packet");
             }
             if(flag == 1)
             {
@@ -150,43 +156,44 @@ int main(void)
                 packetTimeout = UART_ReadRxData();
                 if(packetTimeout <= 20 && packetTimeout >= 1)
                 {
-                    source = FROM_TIMEOUT;
+                    source = FROM_TIMEOUT;  // reference for the type of TAIL state we enter
                     STATE = TAIL;
                 }
                 else {
                     STATE = RESET;
-                    UART_PutString("Timeout out of range");
+                    UART_PutString("Time selected out of range [1-20]");
                 }
             }
         }
         
         if(STATE == TAIL)
         {
+            // if we are in TIME_SET protocol the TAIL byte can have a delay up to INFINITE seconds
+            // while in COLOR_SET protocol the TAIL byte can have a delay up to timeoutMax seconds
             if((count_time > timeoutMax && source == FROM_COLOR) ||(count_time > INFINITE && source == FROM_TIMEOUT)){
                 STATE = RESET;
-                UART_PutString("Timeout");
+                UART_PutString("Timeout, re-send the entire packet");
             }
             if(flag == 1)
             {
                 flag = 0;
-               // Timer_WriteCounter(RESET_TIMER);
-               // count_time = 0;
                 byte_received = UART_ReadRxData();
-                if(byte_received == 192)
+                if(byte_received == 192) // check if TAIL is acceptable (as per protocol)
                 {
                     switch(source){
-                        case FROM_COLOR:
-                        //driving PWM: fill the color struct and lighting leds
+                        case FROM_COLOR:    // meaning we are setting the color -> drive RGB_LED
+                        //driving PWM: fill the color struct and lighting leds 
+                        // (functions from ProjectUtils.h)
                         color = LED_GetColor(packetColor);
                         LED_WriteColor(color);
                         break;
-                        case FROM_TIMEOUT:
+                        case FROM_TIMEOUT:  // menaing we are setting the new timeoutMax
                         timeoutMax = packetTimeout;
                         break;
                     }
                 }
                 else {
-                    UART_PutString("Tail unaccepted");
+                    UART_PutString("Tail not acceptable");
                 }
                 STATE = RESET;
             }
