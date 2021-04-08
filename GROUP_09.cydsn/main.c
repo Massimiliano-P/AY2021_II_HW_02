@@ -11,18 +11,12 @@
 #include "ProjectUtils.h"
 #include "LEDdriver.h"
 
-#define RESET_TIMER 0
-#define SIZE_COLOR 3
-
 // Service variable to store received bytes
 static char packetColor[SIZE_COLOR] = {'\0'};
 static char packetTimeout;
 
-volatile char flag, count_time, byte_received, timeoutMax;
-
-int index_parser;
-int STATE;
-char source;
+char byte_received, timeoutMax;
+int index_parser, STATE, source;
 Color color;
 
 
@@ -40,7 +34,7 @@ int main(void)
     // Initialize STATE to IDLE
     STATE = IDLE;
     // Initialize flag to keep track of bytes received
-    flag = 0;
+    Received_Byte_Flag = WAITING_FOR_BYTE;
     // Initialize timeoutMax to the default 5 seconds (as indicated in specs) 
     timeoutMax = DEFAULT_TIMEOUT;
     // Initialize the integer variable to scroll the vector that keeps track of bytes
@@ -61,9 +55,9 @@ int main(void)
         
         if(STATE == IDLE)
         {
-            if(flag == 1) // When the byte has been received
+            if(Received_Byte_Flag == BYTE_RECEIVED) // When the byte has been received
             {
-                flag = 0; // Condition to allow the toggling of the variable at next byte
+                Received_Byte_Flag = WAITING_FOR_BYTE; // Condition to allow the toggling of the variable at next byte
                 byte_received = UART_ReadRxData();
                 
                 // Piece of code to check if the first byte is a "HEADER" byte
@@ -74,15 +68,15 @@ int main(void)
                         the packet used to set the color of RGB we enter into the state
                         we named COLOR_SET and reset the timer to start count seconds */
                         STATE = COLOR_SET;
-                        Timer_WriteCounter(RESET_TIMER);
-                        count_time = 0; // this is the variable we use to count seconds
+                        //Timer_WriteCounter(RESET_TIMER);
+                        Seconds = 0; // this is the variable we use to count seconds
                         break;
                     case HEADER_TIMEOUT:
                         /* this is the same as above, changing the state to set the timeout
                         seconds */
                         STATE = TIMEOUT_SET;
-                        Timer_WriteCounter(RESET_TIMER);
-                        count_time = 0;
+                        //Timer_WriteCounter(RESET_TIMER);
+                        Seconds = 0;
                         break;
                     
                     case 'v':
@@ -116,15 +110,15 @@ int main(void)
             /* once we are in this state, we should epect 3 subsequent bytes, each one 
             coming after less than X seconds wrt the previous. X value is to be set by using the
             other packet composed by 3 bytes; by default X = 5 seconds*/
-            if(count_time > timeoutMax){
+            if(Seconds == timeoutMax){
                 STATE = RESET;
                 UART_PutString("Timeout, re-send the entire packet");
             }            
-            if(flag == 1)
+            if(Received_Byte_Flag == BYTE_RECEIVED)
             {
-                flag = 0;
-                Timer_WriteCounter(RESET_TIMER); //each time we receive a byte we have to restart 
-                count_time = 0;                  // the timer to check if the next will be inside the interval
+                Received_Byte_Flag = WAITING_FOR_BYTE;
+                //Timer_WriteCounter(RESET_TIMER); //each time we receive a byte we have to restart 
+                Seconds = 0;                  // the timer to check if the next will be inside the interval
                 byte_received = UART_ReadRxData();
                 packetColor[index_parser] = byte_received;
                 index_parser++;
@@ -145,17 +139,17 @@ int main(void)
             /* once we are in this state, we should epect a byte reporting the new timeout time. 
             To complete the sending of this packet we let the user a fixed amount of time
             equal to 30 seconds (INFINITE), allowing the user to have time to type all bytes properly*/
-            if(count_time > INFINITE)  // exceeding 30 seconds, the communication protocol crashes
+            if(Seconds == INFINITE)  // exceeding 30 seconds, the communication protocol crashes
                                        // going back to IDLE state
             {
                 STATE = RESET;
                 UART_PutString("Timeout, re-send the entire packet");
             }
-            if(flag == 1)
+            if(Received_Byte_Flag == BYTE_RECEIVED)
             {
-                flag = 0;
-                Timer_WriteCounter(RESET_TIMER);
-                count_time = 0;
+                Received_Byte_Flag = WAITING_FOR_BYTE;
+                //Timer_WriteCounter(RESET_TIMER);
+                Seconds = 0;
                 packetTimeout = UART_ReadRxData();
                 if(packetTimeout <= MAX_TIMEOUT && packetTimeout >= MIN_TIMEOUT)
                 {
@@ -173,13 +167,13 @@ int main(void)
         {
             // if we are in TIME_SET protocol the TAIL byte can have a delay up to INFINITE seconds
             // while in COLOR_SET protocol the TAIL byte can have a delay up to timeoutMax seconds
-            if((count_time > timeoutMax && source == FROM_COLOR) ||(count_time > INFINITE && source == FROM_TIMEOUT)){
+            if((Seconds == timeoutMax && source == FROM_COLOR) ||(Seconds == INFINITE && source == FROM_TIMEOUT)){
                 STATE = RESET;
                 UART_PutString("Timeout, re-send the entire packet");
             }
-            if(flag == 1)
+            if(Received_Byte_Flag == BYTE_RECEIVED)
             {
-                flag = 0;
+                Received_Byte_Flag = WAITING_FOR_BYTE;
                 byte_received = UART_ReadRxData();
                 if(byte_received == TAIL_BYTE) // check if TAIL is acceptable (as per protocol)
                 {

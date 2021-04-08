@@ -7,17 +7,14 @@
 
 #include "project.h"
 #include "Interrupts.h"
-#include "UART.h"
 
-extern volatile char flag;
-extern volatile char count_time;
 
 //This routine is called whenever a byte is received by the UART
 //and it simply rises a global flag
 CY_ISR(UART_ISR){
      if(UART_ReadRxStatus() == UART_RX_STS_FIFO_NOTEMPTY)
     {
-        flag = 1;
+        Received_Byte_Flag = BYTE_RECEIVED;
     }
 }
 
@@ -25,7 +22,8 @@ CY_ISR(UART_ISR){
 //and it is used to measure time in seconds
 CY_ISR(TIMER_ISR){
     
-    count_time++;
+    Timer_ReadStatusRegister(); // called to clear the interrupt pin
+    Seconds++;
 
 }
 

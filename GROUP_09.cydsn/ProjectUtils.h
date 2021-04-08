@@ -25,8 +25,12 @@
 //we selected a long fixed timeout of 30 secs, after which the protocol stops and the machine goes back to IDLE state
 
 // Reference for TAIL STATE execution which specify from which STATE you come
-#define FROM_COLOR 1
-#define FROM_TIMEOUT 2
+#define FROM_COLOR 505
+#define FROM_TIMEOUT 506
+
+// Some constants
+#define RESET_TIMER 0  // used to reset the counter of the timer to 0
+#define SIZE_COLOR 3   // used to set the size of the vector storing the bytes related to colors of protocol packet
 
 
 
