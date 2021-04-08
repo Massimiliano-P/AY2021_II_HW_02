@@ -13,20 +13,10 @@ void LED_Start()
     PWM_B_Start();
 }
 
-void LED_WriteColor(Color c)
+void LED_UpdateColor(char color_array[])
 {
-    PWM_RG_WriteCompare1(c.red);
-    PWM_RG_WriteCompare2(c.green);
-    PWM_B_WriteCompare(c.blue);
-}
-
-Color LED_GetColor(char color_array[])
-{
-    Color color;
-    color.red = color_array[0];
-    color.green = color_array[1];
-    color.blue = color_array[2];
-    return color;
-
+    PWM_RG_WriteCompare1(color_array[0]);
+    PWM_RG_WriteCompare2(color_array[1]);
+    PWM_B_WriteCompare(color_array[2]);
 }
 /* [] END OF FILE */

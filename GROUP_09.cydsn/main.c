@@ -17,7 +17,7 @@ static char packetTimeout;
 
 char byte_received, timeoutMax;
 int index_parser, STATE, source;
-Color color;
+
 
 
 int main(void)
@@ -181,8 +181,7 @@ int main(void)
                         case FROM_COLOR:    // meaning we are setting the color -> drive RGB_LED
                         //driving PWM: fill the color struct and lighting leds 
                         // (functions from ProjectUtils.h)
-                        color = LED_GetColor(packetColor);
-                        LED_WriteColor(color);
+                        LED_UpdateColor(packetColor);
                         break;
                         case FROM_TIMEOUT:  // menaing we are setting the new timeoutMax
                         timeoutMax = packetTimeout;
