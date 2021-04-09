@@ -59,16 +59,6 @@ void checkHeader(char byte_received)
             the string written below, as per protocol */
             UART_PutString("RGB LED Program $$$");
             break;
-        /*
-        case 'c':
-            UART_PutString(&timeoutMax);
-            break;
-            
-        case 'd':
-            
-            UART_PutString(packetColor);
-            break;
-           */
         
         default:
             /* if the first byte we receive is not one of the "HEADER" 
